@@ -8,7 +8,7 @@
 #define IR			(1<<0)
 #define trigger		(1<<1)
 
-//Îáÿâëÿºì ôóíêö³¿
+//ÐžÐ±ÑÐ²Ð»ÑÑ”Ð¼ Ñ„ÑƒÐ½ÐºÑ†Ñ–Ñ—
 void TransmitCmnd (uint16_t);
 void FreqOn  (void);
 
@@ -17,47 +17,50 @@ uint8_t buttonFlag = 0;
 
 int main(void){
 
-	DDRB&=~(trigger);
-	PORTB|=(trigger);
+	DDRB &= ~(trigger);
+	PORTB |= (trigger);
 
 	DDRB |= (IR);
-	PORTB |= IR;
+//	PORTB |= IR;
+	PORTB &= ~(IR);
 
 	FreqOff();
 
 while(1){
-	if (~PINB&(trigger) && !buttonFlag && 0){
+
+	if (!(PINB&(trigger)) && !buttonFlag){
 		buttonFlag = 1;
 		TransmitCmnd(command);
 	}
-	else if (!(~PINB&(trigger)) && buttonFlag)  {
+	else if (PINB&(trigger) && buttonFlag)  {
 		buttonFlag = 0;
+		_delay_ms (50);
 	}
-}
+	}
 }
 
 void TransmitCmnd (uint16_t command){
-	//ñòàðòîâûé èìïóëüñ
+	//ÑÑ‚Ð°Ñ€Ñ‚Ð¾Ð²Ñ‹Ð¹ Ð¸Ð¼Ð¿ÑƒÐ»ÑŒÑ
 	FreqOn ();
-	_delay_us (2400000);
+	_delay_us (24000);
 
 	FreqOff ();
 	PORTB &= ~IR;
-	_delay_us (600000);
+	_delay_us (6000);
 
-	//ïåðåäà÷à êîìàíäû
-	for (char i=0; i<14; i++){
+	//Ð¿ÐµÑ€ÐµÐ´Ð°Ñ‡Ð° ÐºÐ¾Ð¼Ð°Ð½Ð´Ñ‹
+	for (char i=15; i>1; i--){
       if (command & (1<<i)) {
   		FreqOn ();
-  		_delay_us (120000);
+  		_delay_us (12000);
       }
       else {
   		FreqOn ();
-  		_delay_us (60000);
+  		_delay_us (6000);
       }
       	FreqOff();
       	PORTB &= ~IR;
-      	_delay_us (600);
+      	_delay_us (6000);
 	}
 
 
